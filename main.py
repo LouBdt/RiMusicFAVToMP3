@@ -31,11 +31,29 @@ ydl_opts = {
                     }
 erreurs = []
 titres = []
+
+allIndexesFromDB = [song[0]+"\n" for song in result_list]
+
+from os.path import exists
+
+file_exists = exists("AlreadyDL.txt")
+if file_exists:
+    with open('AlreadyDL.txt', 'r') as f:  
+        alreadyDL = f.readlines()
+        alreadyDL = list(dict.fromkeys(alreadyDL))
+else:
+    alreadyDL = []
+
+
 from yt_dlp import YoutubeDL
-for song in result_list:
-    i = song[0]
+for song in allIndexesFromDB:
+    i = song
     with YoutubeDL(ydl_opts) as ydl:
-        try:
-            ydl.download("https://www.youtube.com/watch?v="+i)
-        except:
-            erreurs.append(i)
+        if i not in alreadyDL:
+            try:
+                ydl.download("https://www.youtube.com/watch?v="+i)
+                with open('AlreadyDL.txt', 'a') as f:  
+                    f.write(i)
+            except:
+                erreurs.append(i)
+        
